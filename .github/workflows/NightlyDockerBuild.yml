@@ -47,7 +47,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: nextchatweb-nightly-${{ env.TIMESTAMP }}
+          tag_name: nextchatweb-nightly-v${{ env.TIMESTAMP }}
           release_name: ChatGPT-Next-Web Nightly Build v${{ env.TIMESTAMP }}
           body: |
             Changes in this release:
