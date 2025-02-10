@@ -2,8 +2,8 @@ name: Nightly Docker Build
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天 UTC 时间 00:00 触发
-  workflow_dispatch:     # 允许手动触发
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -29,11 +29,13 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build . -t ghcr.io/${{ github.repository }}/nextchat:${{ env.TIMESTAMP }}
+          # Ensure the repository name is lowercase
+          IMAGE_NAME=$(echo ghcr.io/${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+          docker build . -t $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }}
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository }}/nextchat:${{ env.TIMESTAMP }}
+          docker push $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }}
 
       - name: Create GitHub Release
         id: create_release
