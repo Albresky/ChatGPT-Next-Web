@@ -54,15 +54,15 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           tag_name: nextchatweb-nightly-${{ env.TIMESTAMP }}
-          release_name: ChatGPT-Next-Web Nightly Build v${{ env.TIMESTAMP }}
+          name: Nightly Build v${{ env.TIMESTAMP }}
           body: |
             Changes in this release:
             - Nightly build release for version v${{ env.TIMESTAMP }}
           draft: false
-          prerelease: true
+          prerelease: false
 
       - name: Upload Docker image to GitHub Release as asset
         uses: actions/upload-release-asset@v1
