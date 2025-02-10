@@ -43,10 +43,17 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
-        uses: actions/create-release@v2
+        uses: comnoco/create-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: nextchatweb-nightly-v${{ env.TIMESTAMP }}
+          tag_name: nextchatweb-nightly-${{ env.TIMESTAMP }}
           release_name: ChatGPT-Next-Web Nightly Build v${{ env.TIMESTAMP }}
+          body: |
+            Changes in this release:
+            - Nightly build release for ${{
+            env.TIMESTAMP
+            }}
           draft: false
           prerelease: true
 
