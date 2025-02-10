@@ -2,8 +2,8 @@ name: Nightly Docker Build
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天午夜构建
-  workflow_dispatch:  # 允许手动触发
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -56,9 +56,9 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
-        uses: comnoco/create-release@v2
+        uses: softprops/action-gh-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 自动提供的 token
         with:
           tag_name: nextchatweb-nightly-v${{ env.TIMESTAMP }}
           release_name: ChatGPT-Next-Web Nightly Build v${{ env.TIMESTAMP }}
