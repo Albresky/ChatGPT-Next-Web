@@ -1,3 +1,16 @@
+## Nightly build for amd64 docker image
+
+This repo is created to automatically build docker image by GitHub Action for [ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/NextChat), the latest **nightly** built image is available on [rocky9/nextchat-nightly](https://hub.docker.com/r/rocky9/nextchat-nightly). The image is host on dockerhub.
+
+**Pull the latest Nightly build image:**
+```bash
+docker pull rocky9/nextchat-nightly:latest
+```
+
+---
+---
+
+
 <div align="center">
 
 <a href='https://nextchat.dev/chat'>
