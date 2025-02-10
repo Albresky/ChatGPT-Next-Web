@@ -1,0 +1,46 @@
+name: Nightly Docker Build
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 时间 00:00 触发
+  workflow_dispatch:     # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get current timestamp
+        id: timestamp
+        run: echo "TIMESTAMP=$(date -u +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build . -t ghcr.io/${{ github.repository }}/nextchat:${{ env.TIMESTAMP }}
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository }}/nextchat:${{ env.TIMESTAMP }}
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: nightly-${{ env.TIMESTAMP }}
+          release_name: Nightly Build ${{ env.TIMESTAMP }}
+          draft: false
+          prerelease: true
+          generate_release_notes: true
