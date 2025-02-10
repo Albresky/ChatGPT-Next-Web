@@ -35,11 +35,13 @@ jobs:
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
           docker build . -t $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }}
 
-      - name: Push Docker image to GitHub Container Registry
+      - name: Save Docker image as .tar file
         run: |
-          IMAGE_FILE=$IMAGE_NAME/nextchat:${{ env.TIMESTAMP }}
-          echo "Push Docker image to GitHub Container Registry: $IMAGE_FILE"
-          docker push $IMAGE_FILE
+          # 保存 Docker 镜像为 .tar 文件
+          IMAGE_FILE=./nextchat-docker-v${{ env.TIMESTAMP }}.tar
+          docker save $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }} -o $IMAGE_FILE
+          echo "Docker image saved as $IMAGE_FILE"
+          echo "ASSET_PATH=$IMAGE_FILE" >> $GITHUB_ENV
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -47,23 +49,33 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Push Docker image to Docker Hub
-        run: |
-          DOCKER_HUB_IMAGE=${{ secrets.DOCKER_USERNAME }}/nextchat:nightly_v${{ env.TIMESTAMP }}
-          echo "Push Docker image to Docker Hub: $DOCKER_HUB_IMAGE"
-          docker tag $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }} $DOCKER_HUB_IMAGE
-          docker push $DOCKER_HUB_IMAGE
+      - name: Build and Push Docker image to Docker Hub
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/nextchat:nightly_v${{ env.TIMESTAMP }}
+            ${{ secrets.DOCKER_USERNAME }}/nextchat:latest
 
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 自动提供的 token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: nextchatweb-nightly-v${{ env.TIMESTAMP }}
+          tag_name: nextchatweb-nightly-${{ env.TIMESTAMP }}
           release_name: ChatGPT-Next-Web Nightly Build v${{ env.TIMESTAMP }}
           body: |
             Changes in this release:
             - Nightly build release for version v${{ env.TIMESTAMP }}
           draft: false
           prerelease: true
+
+      - name: Upload Docker image to GitHub Release as asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.ASSET_PATH }}
+          asset_name: nextchat-docker-v${{ env.TIMESTAMP }}.tar
+          asset_content_type: application/x-tar
