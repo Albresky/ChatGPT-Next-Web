@@ -31,11 +31,14 @@ jobs:
         run: |
           # Ensure the repository name is lowercase
           IMAGE_NAME=$(echo ghcr.io/${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE_NAME=$IMAGE_NAME"
           docker build . -t $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }}
 
       - name: Push Docker image
         run: |
-          docker push $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }}
+          IMAGE_FILE=$IMAGE_NAME/nextchat:${{ env.TIMESTAMP }}
+          echo "Push Docker image: $IMAGE_FILE"
+          docker push $IMAGE_FILE
 
       - name: Create GitHub Release
         id: create_release
