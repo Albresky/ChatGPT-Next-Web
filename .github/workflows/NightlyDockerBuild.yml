@@ -35,13 +35,13 @@ jobs:
 
       - name: Tag Docker image for Docker Hub
         run: |
-          docker tag $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }} ${{ secrets.DOCKER_USERNAME }}/nextchat:nightly_v${{ env.TIMESTAMP }}
-          docker tag $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }} ${{ secrets.DOCKER_USERNAME }}/nextchat:latest
+          docker tag $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }} ${{ secrets.DOCKER_USERNAME }}/nextchat-nightly:v${{ env.TIMESTAMP }}
+          docker tag $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }} ${{ secrets.DOCKER_USERNAME }}/nextchat-nightly:latest
 
       - name: Push Docker image to Docker Hub
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/nextchat:nightly_v${{ env.TIMESTAMP }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/nextchat:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/nextchat-nightly:v${{ env.TIMESTAMP }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/nextchat-nightly:latest
 
       - name: Save Docker image as .tar file
         run: |
@@ -66,6 +66,8 @@ jobs:
 
       - name: Upload Docker image to GitHub Release as asset
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.ASSET_PATH }}
