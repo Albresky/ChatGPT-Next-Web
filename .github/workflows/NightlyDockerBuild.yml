@@ -35,18 +35,31 @@ jobs:
           echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
           docker build . -t $IMAGE_NAME/nextchat:${{ env.TIMESTAMP }}
 
-      - name: Push Docker image
+      - name: Push Docker image to GitHub Container Registry
         run: |
           IMAGE_FILE=$IMAGE_NAME/nextchat:${{ env.TIMESTAMP }}
-          echo "Push Docker image: $IMAGE_FILE"
+          echo "Push Docker image to GitHub Container Registry: $IMAGE_FILE"
           docker push $IMAGE_FILE
 
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: nightly-${{ env.TIMESTAMP }}
-          release_name: Nightly Build ${{ env.TIMESTAMP }}
+          tag_name: nextchatweb-nightly-${{ env.TIMESTAMP }}
+          release_name: ChatGPT-Next-Web Nightly Build v${{ env.TIMESTAMP }}
           draft: false
           prerelease: true
-          generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          DOCKER_HUB_IMAGE=${{ secrets.DOCKER_USERNAME }}/nextchat:nightly_v${{ env.TIMESTAMP }}
+          echo "Push Docker image to Docker Hub: $DOCKER_HUB_IMAGE"
+          docker tag $IMAGE_NAME/nextchat:nightly_v${{ env.TIMESTAMP }} $DOCKER_HUB_IMAGE
+          docker push $DOCKER_HUB_IMAGE
